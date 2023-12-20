@@ -1,0 +1,33 @@
+body{
+    background-color: rgb(50, 50, 50);
+}
+
+.card-container{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    gap: 10px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.form-container{
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.card{
+    width: 300px;
+}
+
+.img-card {
+    height: 200px;
+    width: max-content;
+    justify-items: center;
+    align-items: center;
+    margin: 5px;
+    padding: 0;
+}
+
+.text-card {
+    text-align: center;
+}
