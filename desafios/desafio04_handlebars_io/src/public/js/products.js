@@ -1,5 +1,5 @@
 const socket = io();
-console.log("hola mundo");
+console.log("Bienvenido a Tienda Gamer");
 
 const addProductBtn = document.getElementById("addProductBtn");
 const deleteProductBtn = document.getElementById("deleteProductBtn");
