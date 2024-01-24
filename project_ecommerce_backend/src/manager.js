@@ -1,4 +1,4 @@
-import { ProductManager } from "./ProductManager.js";
+import { ProductManager } from "./dao/managers/fileSystemManager/ProductManager.js";
 import { __dirname } from "./utils.js";
 
 console.log("dirname", __dirname);
