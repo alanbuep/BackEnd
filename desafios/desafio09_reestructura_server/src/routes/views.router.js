@@ -1,18 +1,9 @@
 import { Router } from "express";
-import { ProductManager } from "../dao/managers/fsManagers/ProductManager.js";
-import Products from "../dao/managers/dbManagers/products.js";
 import { ProductsModel } from "../dao/models/products.js";
-import { CartsModel } from "../dao/models/carts.js";
-import Carts from "../dao/managers/dbManagers/carts.js";
-import UserModel from "../dao/models/users.js";
-import auth from "../middlewares/auth.js";
-import { createHash, isValidPassword } from "../utils.js";
-import passport from "passport";
+import { getProducts, getProductsByID, saveProduct, updateProduct, deleteProduct } from "../controller/products.controller.js"
+import { getCarts, getCartById, addCart, addProductToCart, updateCart, updateProductQuantity, deleteCart, deleteProductCart } from "../controller/carts.controller.js"
 
 const router = Router();
-const productManager = new ProductManager("../productsList.json");
-const productsDB = new Products();
-const cartsDB = new Carts();
 
 router.get("/products", async (req, res) => {
     try {
@@ -70,7 +61,7 @@ router.get("/products", async (req, res) => {
 );
 
 router.get("/realtime", async (req, res) => {
-    const products = await productsDB.getAllProducts() || productManager.getProducts();
+    const products = await getProducts(req, res);
     const user = req.session.user;
     console.log(user)
     res.render("realtime", {
@@ -82,6 +73,7 @@ router.get("/realtime", async (req, res) => {
     });
 });
 
+
 router.get("/chat", async (req, res) => {
     res.render("chat", {
         title: "Chat",
@@ -92,7 +84,7 @@ router.get("/chat", async (req, res) => {
 
 router.get("/carts", async (req, res) => {
     try {
-        const carts = await cartsDB.getAllCarts()
+        const carts = await getCarts();
         console.log(carts)
         res.render("carts", {
             title: "Carritos",
@@ -111,9 +103,8 @@ router.get("/carts", async (req, res) => {
 );
 
 router.get("/carts/:cid", async (req, res) => {
-    const { cid } = req.params;
     try {
-        const cart = await cartsDB.getCartById(cid);
+        const cart = await getCartById();
         console.log(cart)
         res.render("cart", {
             title: "Carrito",
@@ -130,7 +121,5 @@ router.get("/carts/:cid", async (req, res) => {
     }
 }
 );
-
-
 
 export default router;

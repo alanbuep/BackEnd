@@ -4,7 +4,7 @@ import { ProductDao } from "./Product.js";
 
 const productManager = new ProductDao("../../../../productsList.json");
 
-class CartsDao {
+export default class CartsDao {
     static carts;
     constructor(path) {
         this.path = path;
@@ -167,5 +167,3 @@ class CartsDao {
     }
 
 }
-
-export { CartsDao };

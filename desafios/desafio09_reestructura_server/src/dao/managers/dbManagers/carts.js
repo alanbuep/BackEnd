@@ -51,11 +51,6 @@ export default class CartsDao {
         return result;
     }
 
-    async updateCart(id, cart) {
-        const result = await CartsModel.updateOne({ _id: id }, cart);
-        return result;
-    }
-
     async deleteCart(id) {
         const result = await CartsModel.findByIdAndDelete(id);
         return result;

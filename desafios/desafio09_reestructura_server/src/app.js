@@ -2,11 +2,9 @@ import express from "express";
 import { Server } from "socket.io";
 import handlebars from "express-handlebars";
 import { __dirname } from "./utils.js";
-import { ProductManager } from "./dao/managers/fsManagers/ProductManager.js";
 import mongoose from "mongoose";
 import MongoStore from "connect-mongo";
 import dotenv from "dotenv";
-import Products from "./dao/managers/dbManagers/products.js";
 import Message from "./dao/managers/dbManagers/messages.js";
 import session from "express-session";
 import cookieParser from "cookie-parser";
@@ -19,6 +17,7 @@ import signupRouter from "./routes/signup.router.js";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
 import { generateToken, passportCall, authorization, } from "./utils.js";
+import { getProducts, getProductsByID, saveProduct, updateProduct, deleteProduct } from "./controller/products.controller.js";
 
 dotenv.config();
 
@@ -27,8 +26,6 @@ const PORT = process.env.PORT;
 
 const DB_URL = process.env.DB_URL; /* || "mongodb://localhost:27017/ecommerce" */
 
-const productManager = new ProductManager("../productsList.json");
-const productsDB = new Products();
 const chatDB = new Message();
 
 
@@ -125,8 +122,8 @@ io.on("connection", (socket) => {
                 category,
                 thumbnail,
             };
-            const result = await productsDB.saveProduct(productToSave);
-            const allProducts = await productsDB.getAllProducts();
+            const result = await saveProduct(productToSave);
+            const allProducts = await getProducts();
             // console.log(allProducts);
             result && io.emit("updateProducts", allProducts);
         } catch (err) {
@@ -137,8 +134,8 @@ io.on("connection", (socket) => {
     socket.on("deleteProduct", async (id) => {
         console.log(id);
         try {
-            const result = await productsDB.deleteProduct(id);
-            const allProducts = await productsDB.getAllProducts();
+            const result = await deleteProduct(id);
+            const allProducts = getProducts();
             console.log(allProducts);
             result && io.emit("updateProducts", allProducts);
         } catch (err) {
