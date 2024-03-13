@@ -1,3 +1,16 @@
+{{#if user}}
+<div class="container">
+    <div class="row align-items-center">
+        <div class="col-sm-8 text-white text-center">
+            <h2>Bienvenido {{user}}!!</h2>
+        </div>
+        <div class="col-sm-4 text-center">
+            <button id="logout-button" class="btn btn-primary">Logout</button>
+        </div>
+    </div>
+</div>
+{{/if}}
+
 <h1 class="text-white text-center">Administrador de Productos</h1>
 <div class="container-fluid text-white row form-container">
     <div class="col-sm">
@@ -39,7 +52,7 @@
                     aria-describedby="basic-addon1">
             </div>
             <div class="input-group mb-3">
-                <span class="input-group-text" >Thumbnail:</span>
+                <span class="input-group-text">Thumbnail:</span>
                 <input id="thumbnail" type="text" class="form-control" placeholder="No obligatorio"
                     aria-label="Username" aria-describedby="basic-addon1">
             </div>
@@ -74,4 +87,32 @@
         </div>
     </div>
     {{/each}}
+
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {{#unless hasPrevPage}}disabled{{/unless}}">
+                <a href="/realtime?page={{prevPage}}" class="page-link">Previous</a>
+            </li>
+
+            {{#if hasPrevPage}}
+            <li class="page-item">
+                <a href="/realtime?page={{prevPage}}" class="page-link">{{prevPage}}</a>
+            </li>
+            {{/if}}
+
+            <li class="page-item active">
+                <a href="#" class="page-link">{{currentPage}}</a>
+            </li>
+
+            {{#if hasNextPage}}
+            <li class="page-item">
+                <a href="/realtime?page={{nextPage}}" class="page-link">{{nextPage}}</a>
+            </li>
+            {{/if}}
+
+            <li class="page-item {{#unless hasNextPage}}disabled{{/unless}}">
+                <a href="/realtime?page={{nextPage}}" class="page-link">Next</a>
+            </li>
+        </ul>
+    </nav>
 </div>

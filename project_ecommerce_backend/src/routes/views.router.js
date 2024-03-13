@@ -1,16 +1,13 @@
 import { Router } from "express";
-import { ProductManager } from "../dao/managers/fsManagers/ProductManager.js";
-import Products from "../dao/managers/dbManagers/products.js";
 import { ProductsModel } from "../dao/models/products.js";
-import { CartsModel } from "../dao/models/carts.js";
-import Carts from "../dao/managers/dbManagers/carts.js";
+import auth from "../middlewares/auth.js";
+import authUser from "../middlewares/authUser.js";
+import authAdmin from "../middlewares/authAdmin.js";
+import { getCarts, getCartById, addCart, addProductToCart, updateCart, updateProductQuantity, deleteCart, deleteProductCart } from "../controller/carts.controller.js"
 
 const router = Router();
-const productManager = new ProductManager("../productsList.json");
-const productsDB = new Products();
-const cartsDB = new Carts();
 
-router.get("/products", async (req, res) => {
+router.get("/products", authUser, async (req, res) => {
     try {
         const { limit, page, query, sort } = req.query;
         const isSorted = () => {
@@ -39,6 +36,7 @@ router.get("/products", async (req, res) => {
         const { docs, hasPrevPage, hasNextPage, totalPages, prevPage, nextPage } = productsData;
 
         const products = docs;
+        const user = req.session.user;
 
         res.render("products", {
             title: "Listado de productos",
@@ -50,6 +48,7 @@ router.get("/products", async (req, res) => {
             prevPage: prevPage,
             currentPage: productsData.page,
             nextPage: nextPage,
+            user: user,
         });
 
     } catch (error) {
@@ -63,17 +62,61 @@ router.get("/products", async (req, res) => {
 }
 );
 
-router.get("/realtime", async (req, res) => {
-    const products = await productsDB.getAllProducts() || productManager.getProducts();
-    res.render("realtime", {
-        title: "Productos en tiempo real",
-        products: products,
-        style: "css/styles.css",
-        scriptName: "realtime.js",
-    });
+router.get("/realtime", authAdmin, async (req, res) => {
+    try {
+        const { limit, page, query, sort } = req.query;
+        const isSorted = () => {
+            if (sort === "asc") {
+                return 1;
+            } else {
+                return -1;
+            }
+        };
+
+        const parsedQuery = () => {
+            if (query) {
+                const queryObj = JSON.parse(query);
+                return queryObj;
+            }
+            return {};
+        };
+
+        const productsData = await ProductsModel.paginate(parsedQuery(), {
+            limit: limit || 2,
+            page: page || 1,
+            sort: sort ? { price: isSorted() } : null,
+            lean: true,
+        });
+
+        const { docs, hasPrevPage, hasNextPage, totalPages, prevPage, nextPage } = productsData;
+
+        const products = docs;
+        const user = req.session.user;
+
+        res.render("realtime", {
+            title: "Administrador de productos",
+            products: products,
+            style: "css/styles.css",
+            scriptName: "realtime.js",
+            hasPrevPage: hasPrevPage,
+            hasNextPage: hasNextPage,
+            prevPage: prevPage,
+            currentPage: productsData.page,
+            nextPage: nextPage,
+            user: user,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error interno del servidor",
+            data: error
+        }
+        )
+        console.log(error)
+    }
 });
 
-router.get("/chat", async (req, res) => {
+
+router.get("/chat", authUser, async (req, res) => {
     res.render("chat", {
         title: "Chat",
         style: "css/styles.css",
@@ -83,7 +126,7 @@ router.get("/chat", async (req, res) => {
 
 router.get("/carts", async (req, res) => {
     try {
-        const carts = await cartsDB.getAllCarts()
+        const carts = await getCarts();
         console.log(carts)
         res.render("carts", {
             title: "Carritos",
@@ -102,9 +145,8 @@ router.get("/carts", async (req, res) => {
 );
 
 router.get("/carts/:cid", async (req, res) => {
-    const { cid } = req.params;
     try {
-        const cart = await cartsDB.getCartById(cid);
+        const cart = await getCartById();
         console.log(cart)
         res.render("cart", {
             title: "Carrito",

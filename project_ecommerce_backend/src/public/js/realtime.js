@@ -61,3 +61,14 @@ socket.on("updateProducts", (products) => {
 </div>
     `
 });
+
+const logoutButton = document.getElementById('logout-button');
+
+logoutButton.addEventListener('click', async () => {
+    const response = await fetch('/logout');
+    if (response.ok) {
+        window.location.href = '/login';
+    } else {
+        alert('Error al cerrar sesión');
+    }
+});

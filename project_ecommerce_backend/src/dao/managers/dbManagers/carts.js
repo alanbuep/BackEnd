@@ -1,14 +1,14 @@
 import { CartsModel } from "../../models/carts.js";
-import Products from "./products.js";
+import ProductDao from "./products.js";
 
-const productDB = new Products();
+const productDB = new ProductDao();
 
-export default class Carts {
+export default class CartsDao {
     constructor() {
         console.log("Working with mongoDB")
     }
 
-    async getAllCarts() {
+    async getCarts() {
         let carts = await CartsModel.find().populate('products.product').lean();
         return carts;
     }
@@ -31,7 +31,7 @@ export default class Carts {
 
     async addProductToCart(id, product) {
         let cart = await CartsModel.findById(id);
-        let productToAdd = await productDB.getProductById(product);
+        let productToAdd = await productDB.getProductByID(product);
         const { products } = cart;
         const index = products.findIndex(
             (product) => product.product.toString() === productToAdd._id.toString()
@@ -47,11 +47,6 @@ export default class Carts {
         }
         cart.products = products;
 
-        const result = await CartsModel.updateOne({ _id: id }, cart);
-        return result;
-    }
-
-    async updateCart(id, cart) {
         const result = await CartsModel.updateOne({ _id: id }, cart);
         return result;
     }
@@ -86,7 +81,7 @@ export default class Carts {
         }
         const newProducts = [];
         for (let product of products) {
-            const productToAdd = await productDB.getProductById(product.product);
+            const productToAdd = await productDB.getProductByID(product.product);
             if (!productToAdd) {
                 throw new Error(`Producto con id ${product.product} no encontrado`);
             }

@@ -1,15 +1,15 @@
 import { ProductsModel } from "../../models/products.js"
 
-export default class Products {
+export default class ProductsDao {
     constructor() {
         console.log("Working with mongoDB")
     }
-    async getAllProducts() {
+    async getProducts() {
         let products = await ProductsModel.find().lean();
         return products;
     }
 
-    async getProductById(id) {
+    async getProductByID(id) {
         let product = await ProductsModel.findById(id);
         return product;
     }
