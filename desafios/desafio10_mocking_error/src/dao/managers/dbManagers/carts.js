@@ -1,7 +1,6 @@
 import { CartsModel } from "../../models/carts.js";
 import ProductDao from "./products.js";
-
-const productDB = new ProductDao();
+import { productsDao } from "../../index.dao.js";
 
 export default class CartsDao {
     constructor() {
@@ -31,7 +30,7 @@ export default class CartsDao {
 
     async addProductToCart(id, product) {
         let cart = await CartsModel.findById(id);
-        let productToAdd = await productDB.getProductByID(product);
+        let productToAdd = await productsDao.getProductByID(product._id);
         const { products } = cart;
         const index = products.findIndex(
             (product) => product.product.toString() === productToAdd._id.toString()
