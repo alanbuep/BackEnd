@@ -4,6 +4,9 @@ import auth from "../middlewares/auth.js";
 import { createHash, isValidPassword } from "../utils.js";
 import passport from "passport";
 import { generateToken, passportCall, authorization } from "../utils.js";
+import authUser from "../middlewares/authUser.js";
+import authAdmin from "../middlewares/authAdmin.js";
+import { mailRestore } from "../services/mail/restore.password.js";
 
 const router = Router();
 
@@ -103,6 +106,56 @@ router.get("/forgot", (req, res) => {
     })
 });
 
+router.get("/restorepasswordemail", authUser, mailRestore);
+
+router.get("/restorepassword", (req, res) => {
+    const user = req.session.user;
+    const { timestamp } = req.query;
+    try {
+        const linkTimestamp = parseInt(timestamp, 10);
+        const now = Date.now();
+        const expirationTime = 60 * 60 * 1000;
+        const timeDifference = now - linkTimestamp;
+
+        if (timeDifference > expirationTime) {
+            return res.redirect("/login");
+        }
+        res.render("restore", {
+            title: "restore",
+            style: "css/styles.css",
+            scriptName: "restore.js",
+            user: user,
+        })
+    } catch (error) {
+        console.error("Error al verificar el enlace:", error);
+        res.status(400).json({ status: "error", message: "El enlace ha expirado" });
+    }
+});
+
+router.put("/resetpassword",
+    async (req, res) => {
+        try {
+            const user = await UserModel.findOne({ email: req.session.user });
+            console.log(user)
+            console.log(req.body.currentPassword)
+            console.log(req.body.newPassword)
+            if (user) {
+                const isMatch = isValidPassword(user.password, req.body.currentPassword);
+                if (!isMatch) {
+                    return res.status(400).json({ message: "Contraseña incorrecta" });
+                }
+                user.password = createHash(req.body.newPassword);
+                await user.save();
+                res.status(201).json({ status: "success", message: "Contraseña cambiada con éxito" });
+            } else {
+                res.status(500).json({ message: "Error con el usuario al cambiar la contraseña" });
+            }
+        } catch (error) {
+            console.error("Error al cambiar la contraseña:", error);
+            res.status(500).json({ message: "Error al cambiar la contraseña" });
+        }
+    });
+
 router.post("/forgot", async (req, res) => {
     const { email, newPassword } = req.body;
     const result = await UserModel.find({
@@ -124,9 +177,27 @@ router.post("/forgot", async (req, res) => {
     }
 });
 
-router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
+router.get('/logout', async (req, res) => {
+    try {
+        const { user } = req.session;
+        console.log(user);
+        const checkUser = await UserModel.findOne({ email: user });
+        if (!checkUser) {
+            console.log("Usuario no encontrado");
+        } else {
+            checkUser.last_connection = new Date();
+            await checkUser.save();
+            console.log("last_connection actualizada");
+        }
+        req.session.destroy();
+        res.redirect('/login');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Error interno del servidor",
+            data: error
+        });
+    }
 });
 
 router.get(

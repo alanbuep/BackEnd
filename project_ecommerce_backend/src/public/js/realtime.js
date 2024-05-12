@@ -4,6 +4,9 @@ console.log("Bienvenido a Tienda Gamer");
 const addProductBtn = document.getElementById("addProductBtn");
 const deleteProductBtn = document.getElementById("deleteProductBtn");
 
+const user = document.getElementById("user").innerText;
+console.log(user);
+
 addProductBtn.addEventListener("click", () => {
     const title = document.getElementById("title").value;
     const description = document.getElementById("description").value;
@@ -25,7 +28,16 @@ addProductBtn.addEventListener("click", () => {
         thumbnail,
     };
 
-    socket.emit("addProduct", product);
+    const productToSave = {
+        body: product,
+        user: user,
+    };
+
+    console.log(productToSave)
+
+    setTimeout(4000);
+
+    socket.emit("addProduct", productToSave);
     title.value = "";
     description.value = "";
     code.value = "";
@@ -36,10 +48,15 @@ addProductBtn.addEventListener("click", () => {
     thumbnail.value = "";
 });
 
+
 deleteProductBtn.addEventListener("click", () => {
     const id = document.getElementById("productId").value;
-    console.log(id);
-    socket.emit("deleteProduct", id);
+    const productToDelete = {
+        id: id,
+        user: user,
+    };
+    console.log(productToDelete);
+    socket.emit("deleteProduct", productToDelete);
     id.value = "";
     alert("Producto eliminado");
 });

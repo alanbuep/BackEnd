@@ -22,6 +22,13 @@ export const generateToken = (user) => {
     return token;
 };
 
+export const generateTokenLink = (user) => {
+    const timestamp = Date.now();
+    const payload = { user, timestamp };
+    const token = jwt.sign(payload, PRIVATE_KEY);
+    return token;
+};
+
 export const passportCall = (strategy) => {
     return async (req, res, next) => {
         passport.authenticate(strategy, function (error, user, info) {

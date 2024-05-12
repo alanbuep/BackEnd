@@ -1,4 +1,5 @@
 import { cartsDao } from "../dao/index.dao.js";
+import { getProductsByID } from "./products.controller.js";
 
 async function getCarts(req, res) {
     try {
@@ -11,9 +12,10 @@ async function getCarts(req, res) {
 }
 
 async function getCartById(req, res) {
-    const { cid } = req.params;
-    console.log(cid)
     try {
+        console.log(req)
+        const { cid } = req.params;
+        console.log(cid)
         const cart = await cartsDao.getCartById(cid);
         console.log(cart);
         if (cart) {
@@ -46,7 +48,6 @@ async function addProductToCart(req, res) {
     const { cid, pid } = req.params;
     try {
         const productAddCart = await cartsDao.addProductToCart(cid, pid);
-        console.log(productAddCart)
         res.status(200).json({
             message: "Producto agregado al carrito con éxito",
             data: productAddCart
@@ -100,7 +101,7 @@ async function updateProductQuantity(req, res) {
 async function deleteCart(req, res) {
     const { cid } = req.params;
     try {
-        let cart = await getCartById(cid);
+        let cart = await cartsDao.getCartById(cid);
         if (cart) {
             const cartDeleted = await cartsDao.deleteCart(cid);
             res.status(200).json({

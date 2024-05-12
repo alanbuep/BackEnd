@@ -13,11 +13,16 @@ import cartRouter from "./routes/cart.router.js";
 import viewsRouter from "./routes/views.router.js";
 import loginRouter from "./routes/login.router.js";
 import sessionRouter from "./routes/session.router.js";
+import usersRouter from "./routes/users.router.js";
 import signupRouter from "./routes/signup.router.js";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
 import { generateToken, passportCall, authorization, } from "./utils.js";
 import { getProducts, getProductsByID, saveProduct, updateProduct, deleteProduct } from "./controller/products.controller.js";
+import { addLogger } from "./middlewares/logger.mid.js";
+import { mailRestore } from "./services/mail/restore.password.js";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUiExpress from "swagger-ui-express";
 
 dotenv.config();
 
@@ -27,7 +32,6 @@ const PORT = process.env.PORT;
 const DB_URL = process.env.DB_URL; /* || "mongodb://localhost:27017/ecommerce" */
 
 const chatDB = new Message();
-
 
 let visitas = 0;
 let messages = [];
@@ -59,6 +63,24 @@ const environment = async () => {
 
 environment();
 
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.1",
+        info: {
+            title: "Desafio_Documantacion_API",
+            version: "1.0.0",
+            description: "desafio 13",
+            contact: {
+                name: "Coderhouse",
+            },
+            servers: ["http://localhost:8080"],
+        },
+    },
+    apis: [`${__dirname}/docs/**/*.yaml`],
+};
+
+const specs = swaggerJsdoc(swaggerOptions);
+
 app.use(
     session({
         store: MongoStore.create({
@@ -71,14 +93,27 @@ app.use(
     })
 );
 
+app.use("/apidocs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
 app.use('/api/sessions', sessionRouter);
+app.use('/api/users', usersRouter);
 app.use("/", viewsRouter);
 
 app.use("/", sessionRouter);
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
+
+app.use(addLogger);
+app.get('/loggerTest', (req, res) => {
+    req.logger.debug('Debug message');
+    req.logger.http('HTTP message');
+    req.logger.info('Info message');
+    req.logger.warn('Warning message');
+    req.logger.error('Error message');
+    req.logger.log('fatal', 'Fatal message');
+    res.send('Logging test realizado');
+});
 
 initializePassport();
 app.use(passport.initialize());
@@ -101,8 +136,10 @@ const server = app.listen(PORT, () => {
 const io = new Server(server);
 
 io.on("connection", (socket) => {
-    console.log("nuevo cliente conectado");
-    socket.on("addProduct", async (product) => {
+    console.log("nuevo cliente conectado ");
+    socket.on("addProduct", async (req) => {
+        console.log(req)
+        const product = req.body;
         const title = product.title;
         const description = product.description;
         const code = product.code;
@@ -111,6 +148,7 @@ io.on("connection", (socket) => {
         const stock = product.stock;
         const category = product.category;
         const thumbnail = product.thumbnail;
+        const owner = req.user;
         try {
             let productToSave = {
                 title,
@@ -121,6 +159,7 @@ io.on("connection", (socket) => {
                 stock,
                 category,
                 thumbnail,
+                owner,
             };
             const result = await saveProduct(productToSave);
             const allProducts = await getProducts();
@@ -131,10 +170,10 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("deleteProduct", async (id) => {
-        console.log(id);
+    socket.on("deleteProduct", async (productToDelete) => {
+        console.log(productToDelete);
         try {
-            const result = await deleteProduct(id);
+            const result = await deleteProduct(productToDelete);
             const allProducts = getProducts();
             console.log(allProducts);
             result && io.emit("updateProducts", allProducts);

@@ -33,3 +33,20 @@ logoutButton.addEventListener('click', async () => {
         alert('Error al cerrar sesión');
     }
 });
+
+const restorePasswordButton = document.getElementById('restore-password-button');
+restorePasswordButton.addEventListener('click', async () => {
+    try {
+        const response = await fetch('http://localhost:8080/restorepasswordemail', {
+            method: 'GET',
+        });
+        if (!response.ok) {
+            throw new Error('Error al solicitar restablecimiento de contraseña');
+        }
+        if (response.ok) {
+            alert('Correo enviado correctamente');
+        };
+    } catch (error) {
+        console.error(error);
+    }
+});

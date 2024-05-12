@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import utils from "../../../utils.js";
-import { ProductDao } from "./Product.js";
+import ProductDao from "./Product.js";
 
 const productManager = new ProductDao("../../../../productsList.json");
 

@@ -73,6 +73,32 @@ const initializePassport = () => {
         )
     );
 
+    passport.use("resetpassword", new LocalStrategy({
+        passReqToCallback: true,
+        usernameField: "email",
+    }, async (req, password, newPassword, done) => {
+        const { email } = req.body;
+        console.log("El usuario es:", email)
+        try {
+            const user = await UserModel.findOne({ email });
+            if (!user) {
+                return done(null, false, { message: "Usuario no encontrado" });
+            }
+            const isMatch = isValidPassword(user.password, password);
+            if (!isMatch) {
+                return done(null, false, { message: "Contraseña incorrecta" });
+            }
+
+            user.password = createHash(newPassword);
+            await user.save();
+
+            return done(null, user);
+        } catch (error) {
+            console.error("Error al cambiar la contraseña:", error);
+            return done("Error al cambiar la contraseña", error);
+        }
+    }));
+
     passport.use(
         "github",
         new GitHubStrategy(

@@ -1,4 +1,7 @@
 import { productsDao } from "../dao/index.dao.js";
+import CustomError from "../services/customError.js";
+import enumErrors from "../services/enumError.js";
+import { generateAddProductErrorInfo } from "../services/infoError.js";
 
 async function getProducts(req, res) {
     const { limit } = req.query;
@@ -24,9 +27,10 @@ async function getProducts(req, res) {
 }
 
 async function getProductsByID(req, res) {
-    const { id } = req.params;
+    const { pid } = req.params || req;
+    console.log(pid)
     try {
-        const product = await productsDao.getProductsByID(id);
+        const product = await productsDao.getProductByID(pid);
         if (product) {
             res.json({ message: "Success", data: product });
         } else {
@@ -43,11 +47,29 @@ async function getProductsByID(req, res) {
     }
 };
 
-async function saveProduct(req, res) {
+async function saveProduct(req, res, next) {
     try {
         const product = req.body;
+        console.log(product);
+        if (!product.title || !product.description || !product.code || !product.price || !product.status || !product.stock || !product.category) {
+            CustomError.createError({
+                name: "Error al crear el producto",
+                cause: generateAddProductErrorInfo(product),
+                message: "Uno o más campos son inválidos",
+                code: enumErrors.ADD_PRODUCT_ERROR,
+            });
+        }
+        if (!product.thumbnail) {
+            product.thumbnail = "Not image"
+        }
+        if (!product.owner) {
+            product.owner = "admin"
+        }
         const productSaved = await productsDao.saveProduct(product);
-        res.status(200).json({ message: "Producto cargado con éxito", data: productSaved });
+        console.log("El owner: " + product.owner)
+        console.log(" Guardo el producto: ")
+        console.log(product);
+        res.status(200).json({ message: "Producto cargado con éxito", data: product });
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -82,14 +104,18 @@ async function updateProduct(req, res) {
 }
 
 async function deleteProduct(req, res) {
-    const { pid } = req.params;
     try {
-        let product = await getProductsByID(pid);
+        const { pid } = req.params;
+         // const user = req.user || res.session;
+        let product = await productsDao.getProductByID(pid);
         if (product) {
-            const respuesta = await deleteProduct(pid);
+            // if (product.owner === user) {
+            const respuesta = await productsDao.deleteProduct(pid);
+            console.log("Producto eliminado con exito: ", respuesta)
+            // }
             res.status(200).json({
                 message: "Producto eliminado con éxito",
-                data: respuesta
+                data: product
             });
         } else {
             res.status(404).json({

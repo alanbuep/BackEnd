@@ -14,6 +14,8 @@ async function postLogin(email, password) {
     }
     if (data.respuesta === "admin") {
         window.location.href = "/realtime";
+    } else if (data.respuesta === "premium") {
+        window.location.href = "/realtime";
     } else if (data.respuesta === "ok") {
         window.location.href = "/products";
     } else {

@@ -1,20 +1,23 @@
 import utils from "../../../utils.js";
 import crypto from "crypto";
 
-export class ProductDao {
+export default class ProductDao {
     constructor(path) {
         this.path = path;
         this.products = [];
     }
 
-    async saveProduct(title, description, code, price, status, stock, category, thumbnail) {
+    async saveProduct(title, description, code, price, status, stock, category, thumbnail, owner) {
 
         if (!title || !description || !price || !code || !stock || !category || !status) {
-            throw new Error("Todos los campos menos thumbnail son obligarorios");
+            throw new Error("Todos los campos menos thumbnail y owner son obligarorios");
         }
         try {
             if (!thumbnail) {
                 thumbnail = "Not image"
+            }
+            if (!owner) {
+                owner = "admin"
             }
             let data = await utils.readFile(this.path);
             this.products = data?.length > 0 ? data : [];
@@ -59,6 +62,7 @@ export class ProductDao {
     }
 
     async getProductByID(id) {
+        console.log(id)
         try {
             let products = await this.getProducts();
             const productFound = products.find(product => product.id === id);
@@ -114,5 +118,3 @@ export class ProductDao {
         }
     }
 }
-
-export default { ProductDao };

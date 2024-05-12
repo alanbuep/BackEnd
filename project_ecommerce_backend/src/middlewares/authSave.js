@@ -1,7 +1,7 @@
-function authAdmin(req, res, next) {
+function authSave(req, res, next) {
     const userRole = req.session.role;
     if (!userRole) {
-        return res.sendStatus(401);
+        return next();
     }
     if (userRole === "admin") {
         return next();
@@ -12,4 +12,4 @@ function authAdmin(req, res, next) {
     }
 }
 
-export default authAdmin;
+export default authSave;

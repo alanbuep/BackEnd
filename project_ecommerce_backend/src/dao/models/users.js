@@ -11,6 +11,11 @@ const UserSchema = new mongoose.Schema({
     birth: { type: Date, require: true },
     role: { type: String, require: true, max: 100 },
     cart: { type: Schema.Types.ObjectId, ref: 'Cart' },
+    documents: [{
+        name: { type: String },
+        reference: { type: String },
+    }],
+    last_connection: { type: Date },
 });
 
 const UserModel = mongoose.model(userCollection, UserSchema);

@@ -1,4 +1,7 @@
-import { ProductsModel } from "../../models/products.js"
+import { ProductsModel } from "../../models/products.js";
+import CustomError from "../../../services/customError.js";
+import enumErrors from "../../../services/enumError.js";
+import { generateFindProductErrorInfo } from "../../../services/infoError.js";
 
 export default class ProductsDao {
     constructor() {
@@ -11,6 +14,14 @@ export default class ProductsDao {
 
     async getProductByID(id) {
         let product = await ProductsModel.findById(id);
+        if (!product) {
+            CustomError.createError({
+                name: "Error al buscar el producto",
+                cause: generateFindProductErrorInfo(id),
+                message: "Producto no encontrado",
+                code: enumErrors.FIND_PRODUCT_ERROR,
+            });
+        }
         return product;
     }
 
