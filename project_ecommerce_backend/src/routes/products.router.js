@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { getProducts, getProductsByID, saveProduct, updateProduct, deleteProduct } from "../controller/products.controller.js";
 import { generateProducts } from "../controller/mocking.controller.js";
-import authSave from "../middlewares/authAdmin.js";
 
 const router = Router();
 

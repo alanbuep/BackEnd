@@ -1,10 +1,8 @@
 import crypto from "crypto";
 import utils from "../../../utils.js";
-import ProductDao from "./Product.js";
+import { productsDao } from "../../index.dao.js";
 
-const productManager = new ProductDao("../../../../productsList.json");
-
-export default class CartsDao {
+export default class CartsDaoFs {
     static carts;
     constructor(path) {
         this.path = path;
@@ -61,7 +59,7 @@ export default class CartsDao {
             if (!cart) {
                 return "Carrito no encontrado";
             }
-            const productToAdd = await productManager.getProductByID(pid);
+            const productToAdd = await productsDao.getProductByID(pid);
             console.log(productToAdd)
             const { products } = cart;
             const index = products.findIndex(
@@ -126,7 +124,7 @@ export default class CartsDao {
             if (!cart) {
                 return "Carrito no encontrado";
             }
-            const productToDelete = await productManager.getProductByID(productId);
+            const productToDelete = await productsDao.getProductByID(productId);
             console.log(productToDelete)
             const { products } = cart;
             const index = products.findIndex(
@@ -149,7 +147,7 @@ export default class CartsDao {
             if (!cart) {
                 return "Carrito no encontrado";
             }
-            const productToUpdate = await productManager.getProductByID(productId);
+            const productToUpdate = await productsDao.getProductByID(productId);
             console.log(productToUpdate)
             const { products } = cart;
             const index = products.findIndex(

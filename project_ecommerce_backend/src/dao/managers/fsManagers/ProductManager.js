@@ -1,7 +1,7 @@
 import utils from "../../../utils.js";
 import crypto from "crypto";
 
-export class ProductManager {
+export class ProductDaoFs {
     constructor(path) {
         this.path = path;
         this.products = [];
@@ -115,4 +115,4 @@ export class ProductManager {
     }
 }
 
-export default { ProductManager };
+export default { ProductDaoFs };

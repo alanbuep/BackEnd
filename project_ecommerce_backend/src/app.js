@@ -120,9 +120,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
 
-app.get("/api/sessions/current", passportCall("jwt"), authorization("admin"), (req, res) => {
-    res.status(200).json(req.user);
-});
+// app.get("/api/sessions/current", passportCall("jwt"), authorization("admin"), (req, res) => {
+//     res.status(200).json(req.user);
+// });
 
 app.get("/messages", (req, res) => {
     res.json(messages);

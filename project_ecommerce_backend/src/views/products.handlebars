@@ -6,6 +6,7 @@
         </div>
         <div class="col-sm-4 text-center">
             <button id="logout-button" class="btn btn-primary">Logout</button>
+            <button id="view-cart-button" class="btn btn-primary">Ver Carrito</button>
         </div>
         <a id="restore-password-button" class="btn btn-outline-warning">Reestablecer contraseña</a>
     </div>
@@ -25,7 +26,6 @@
             <p class="card-text">Code: {{this.code}}</p>
             <p class="card-text">ID: {{this._id}}</p>
         </div>
-        <input type="text" class="form-control cart-id-input" placeholder="Ingrese el ID del carrito">
         <button class="btn btn-primary add-to-cart" data-product-id="{{this._id}}">Agregar al carrito</button>
     </div>
     {{/each}}

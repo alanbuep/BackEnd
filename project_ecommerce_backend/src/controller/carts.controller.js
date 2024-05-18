@@ -1,5 +1,6 @@
 import { cartsDao } from "../dao/index.dao.js";
 import { getProductsByID } from "./products.controller.js";
+import { usersDao } from "../dao/index.dao.js";
 
 async function getCarts(req, res) {
     try {
@@ -13,7 +14,7 @@ async function getCarts(req, res) {
 
 async function getCartById(req, res) {
     try {
-        console.log(req)
+        console.log("$$$$$$$$$$$$$$$$$$$$")
         const { cid } = req.params;
         console.log(cid)
         const cart = await cartsDao.getCartById(cid);
@@ -47,6 +48,49 @@ async function addCart(req, res) {
 async function addProductToCart(req, res) {
     const { cid, pid } = req.params;
     try {
+        const productAddCart = await cartsDao.addProductToCart(cid, pid);
+        res.status(200).json({
+            message: "Producto agregado al carrito con éxito",
+            data: productAddCart
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error al agregar el producto al carrito",
+            data: error
+        });
+    }
+}
+
+async function addProductToUserCart(req, res) {
+    try {
+        const { pid } = req.params;
+        const { user } = req.session;
+
+        if (!user) {
+            return res.status(401).json({ message: "Usuario no autenticado" });
+        }
+
+        const result = await usersDao.getUserByEmail(user);
+        console.log(result)
+        console.log("################################")
+        let cid;
+        if (result && result.cart) {
+            cid = result.cart;
+            console.log("++++++++++++++++++++")
+            console.log(cid)
+        } else {
+            const newCart = await cartsDao.addCart();
+            console.log("----------------")
+            console.log(newCart)
+            cid = newCart._id;
+            result.cart = cid;
+            console.log("----------------")
+            console.log(cid)
+            const result2 = await usersDao.updateUser(result._id, result);
+            console.log("----------------")
+            console.log(result2)
+        }
+
         const productAddCart = await cartsDao.addProductToCart(cid, pid);
         res.status(200).json({
             message: "Producto agregado al carrito con éxito",
@@ -166,4 +210,4 @@ async function calculateCartTotal(cartId) {
     }
 }
 
-export { getCarts, getCartById, addCart, addProductToCart, updateCart, updateProductQuantity, deleteCart, deleteProductCart, calculateCartTotal }
+export { getCarts, getCartById, addCart, addProductToCart, addProductToUserCart, updateCart, updateProductQuantity, deleteCart, deleteProductCart, calculateCartTotal }

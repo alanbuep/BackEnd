@@ -1,14 +1,27 @@
 <div class="container-fluid card-container row gap-4">
-    <h1 class="text-white text-center">Carrito:</h1>
+    <h1 class="text-white text-center my-4">Carrito</h1>
     <div class="card container">
         <div class="card-body text-card">
-            <h5 class="card-title">Carrito:{{cart._id}}</h5>
+            <h5 class="card-title">Carrito ID: {{cart._id}}</h5>
             <p class="card-text">Creado: {{cart.timestamp}}</p>
+            {{#if cart.products.length}}
+            <h5 class="mt-4">Productos en el carrito:</h5>
             {{#each cart.products}}
-            <p class="card-text">Producto: {{this.title}}</p>
-            <p class="card-text">Producto ID: {{this._id}}</p>
-            <p class="card-text">Cantidad: {{this.quantity}}</p>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Producto: {{this.product.title}}</h6>
+                    <p class="card-text"><strong>Producto ID:</strong> {{this.product._id}}</p>
+                    <p class="card-text"><strong>Cantidad:</strong> {{this.quantity}}</p>
+                    <p class="card-text"><strong>Precio:</strong> ${{this.product.price}}</p>
+                </div>
+            </div>
             {{/each}}
+            <div class="text-center mt-4">
+                <button id="checkout-button" class="btn btn-success">Finalizar Compra</button>
+            </div>
+            {{else}}
+            <p class="text-center text-muted mt-4">Tu carrito está vacío.</p>
+            {{/if}}
         </div>
     </div>
 </div>

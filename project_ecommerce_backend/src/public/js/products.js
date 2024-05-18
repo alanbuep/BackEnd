@@ -1,13 +1,10 @@
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', async event => {
         const productId = event.target.dataset.productId;
-        const cartIdInput = event.target.previousElementSibling;
-        const cartId = cartIdInput.value;
 
         try {
-            console.log(cartId)
             console.log(productId)
-            const response = await fetch(`http://localhost:8080/api/carts/${cartId}/products/${productId}`, {
+            const response = await fetch(`http://localhost:8080/api/carts/products/${productId}`, {
                 method: 'POST',
             });
 
@@ -17,8 +14,21 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
 
             const data = await response.json();
             console.log(data);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Producto agregado',
+                text: 'El producto se ha agregado al carrito con éxito',
+                showConfirmButton: false,
+                timer: 1500
+            });
         } catch (error) {
             console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al agregar el producto al carrito',
+            });
         }
     });
 });
@@ -50,3 +60,45 @@ restorePasswordButton.addEventListener('click', async () => {
         console.error(error);
     }
 });
+
+const viewCartButton = document.getElementById('view-cart-button');
+if (viewCartButton) {
+    viewCartButton.addEventListener('click', async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/users/check-cart', {
+                method: 'GET',
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al verificar el carrito del usuario');
+            }
+
+            const data = await response.json();
+
+            if (data.hasCart) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Redireccionando al carrito',
+                    text: `Su carrito es: ${data.cartId}`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                window.location.href = `carts/${data.cartId}`;
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Carrito vacío',
+                    text: 'El usuario no tiene un carrito asignado',
+                });
+            }
+        } catch (error) {
+            console.error(error);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al verificar el carrito del usuario',
+            });
+        }
+    });
+}

@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { addCart, addProductToCart, deleteCart, deleteProductCart, getCartById, getCarts, updateCart, updateProductQuantity } from "../controller/carts.controller.js";
+import { addCart, addProductToCart, addProductToUserCart, deleteCart, deleteProductCart, getCartById, getCarts, updateCart, updateProductQuantity } from "../controller/carts.controller.js";
 import authTicket from "../middlewares/authTicket.js";
-import { finalizePurchase } from "../controller/purchase.controller.js"
+import { finalizePurchase } from "../controller/purchase.controller.js";
+import authUser from "../middlewares/authUser.js";
 
 const router = Router();
 
@@ -12,6 +13,8 @@ router.get("/:cid", getCartById);
 router.post("/", addCart);
 
 router.post("/:cid/products/:pid", addProductToCart);
+
+router.post("/products/:pid", authUser, addProductToUserCart);
 
 router.delete("/:cid", deleteCart);
 

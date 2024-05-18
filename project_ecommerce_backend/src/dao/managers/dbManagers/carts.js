@@ -1,5 +1,4 @@
 import { CartsModel } from "../../models/carts.js";
-import ProductDao from "./products.js";
 import { productsDao } from "../../index.dao.js";
 
 export default class CartsDao {
@@ -28,9 +27,15 @@ export default class CartsDao {
         return result;
     }
 
-    async addProductToCart(id, product) {
-        let cart = await CartsModel.findById(id);
-        let productToAdd = await productsDao.getProductByID(product._id);
+    async addProductToCart(cid, pid) {
+        let cart = await CartsModel.findById(cid);
+        if (!cart) {
+            throw new Error("Carrito no encontrado");
+        }
+        let productToAdd = await productsDao.getProductByID(pid);
+        if (!productToAdd) {
+            throw new Error("Producto no encontrado");
+        }
         const { products } = cart;
         const index = products.findIndex(
             (product) => product.product.toString() === productToAdd._id.toString()
@@ -46,7 +51,7 @@ export default class CartsDao {
         }
         cart.products = products;
 
-        const result = await CartsModel.updateOne({ _id: id }, cart);
+        const result = await CartsModel.updateOne({ _id: cid }, cart);
         return result;
     }
 
@@ -93,7 +98,7 @@ export default class CartsDao {
         await cart.save();
         return cart;
     }
-    
+
 
     async updateProductQuantity(id, productId, quantity) {
         const cart = await CartsModel.findById(id);

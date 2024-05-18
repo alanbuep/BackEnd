@@ -1,10 +1,9 @@
 import passport from "passport";
 import local from "passport-local";
-import UserModel from "../dao/models/users.js";
+import { usersDao } from "../dao/index.dao.js";
 import { createHash, isValidPassword } from "../utils.js";
 import dotenv from "dotenv";
 import GitHubStrategy from "passport-github2";
-import userService from "../dao/models/users.js";
 import jwt, { ExtractJwt } from "passport-jwt";
 
 dotenv.config();
@@ -49,7 +48,7 @@ const initializePassport = () => {
                 try {
                     console.log(username);
 
-                    const user = await UserModel.findOne({ email: username });
+                    const user = await usersDao.getUserByEmail(username);
                     console.log("user", user);
                     if (user) {
                         return done(null, false, { message: "User already exists" });
@@ -63,7 +62,7 @@ const initializePassport = () => {
                         role: "user",
                     };
                     console.log(newUser);
-                    let result = await UserModel.create(newUser);
+                    let result = await usersDao.addUser(newUser);
                     return done(null, result);
                 } catch (error) {
                     console.log(error);
@@ -80,7 +79,7 @@ const initializePassport = () => {
         const { email } = req.body;
         console.log("El usuario es:", email)
         try {
-            const user = await UserModel.findOne({ email });
+            const user = await usersDao.getUserByEmail(email);
             if (!user) {
                 return done(null, false, { message: "Usuario no encontrado" });
             }
@@ -90,7 +89,7 @@ const initializePassport = () => {
             }
 
             user.password = createHash(newPassword);
-            await user.save();
+            await usersDao.updateUser(user._id, user);
 
             return done(null, user);
         } catch (error) {
@@ -111,7 +110,7 @@ const initializePassport = () => {
                 try {
                     let userEmail = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : "No email";
                     console.log(userEmail);
-                    let user = await userService.findOne({ email: userEmail });
+                    let user = await usersDao.getUserByEmail({ email: userEmail });
                     if (!user) {
                         let firstName = profile.displayName ? profile.displayName.split(" ")[0] : "No first name";
                         let lastName = profile.displayName ? profile.displayName.split(" ")[1] : "No last name";
@@ -123,7 +122,7 @@ const initializePassport = () => {
                             password: Math.random().toString(36).substring(7),
                             role: "user",
                         };
-                        let result = await userService.create(newUser);
+                        let result = await usersDao.addUser(newUser);
                         done(null, result);
                     } else {
                         done(null, user);
@@ -140,7 +139,7 @@ const initializePassport = () => {
     });
 
     passport.deserializeUser(async (id, done) => {
-        let user = await UserModel.findById(id);
+        let user = await usersDao.getUserById(id);
         done(null, user);
     });
 
@@ -154,7 +153,7 @@ const initializePassport = () => {
             },
             async (req, username, password, done) => {
                 try {
-                    const user = await UserModel.findOne({ email: username });
+                    const user = await usersDao.getUserByEmail(username);
                     if (!user) {
                         return done(null, false, { message: "User not found" });
                     }
@@ -174,7 +173,7 @@ const initializePassport = () => {
 
     passport.use('current', new JWTStrategy(opts, async (jwt_payload, done) => {
         try {
-            const user = await UserModel.findOne({ email: jwt_payload.email });
+            const user = await usersDao.getUserByEmail({ email: jwt_payload.email });
             if (user) {
                 done(null, user);
             } else {
