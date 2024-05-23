@@ -5,6 +5,7 @@ import { __dirname } from "./utils.js";
 import mongoose from "mongoose";
 import MongoStore from "connect-mongo";
 import dotenv from "dotenv";
+import cors from "cors";
 import Message from "./dao/managers/dbManagers/messages.js";
 import session from "express-session";
 import cookieParser from "cookie-parser";
@@ -33,11 +34,13 @@ const DB_URL = process.env.DB_URL; /* || "mongodb://localhost:27017/ecommerce" *
 
 const chatDB = new Message();
 
+
 let visitas = 0;
 let messages = [];
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 app.use(express.static(__dirname + "/public"));
 

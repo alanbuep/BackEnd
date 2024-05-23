@@ -1,4 +1,4 @@
-import { cartsDao } from "../dao/index.dao.js";
+import { cartsDao, productsDao } from "../dao/index.dao.js";
 import { getProductsByID } from "./products.controller.js";
 import { usersDao } from "../dao/index.dao.js";
 
@@ -190,20 +190,15 @@ async function deleteProductCart(req, res) {
     }
 }
 
-async function calculateCartTotal(cartId) {
+async function calculateCartTotal(cart) {
     try {
-        const cart = await getCartById(cartId);
-        if (!cart) {
-            throw new Error("Carrito no encontrado");
-        }
         let total = 0;
         for (const cartProduct of cart.products) {
-            const product = await getProductsByID(cartProduct.product._id);
-            if (!product) {
-                throw new Error(`Producto no encontrado: ${cartProduct.product}`);
-            }
-            total += product.price * cartProduct.quantity;
+            const productPrice = cartProduct.product.price;
+            const quantity = cartProduct.quantity;
+            total += productPrice * quantity;
         }
+        
         return total;
     } catch (error) {
         throw new Error("Error al calcular el total del carrito");

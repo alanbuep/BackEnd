@@ -1,12 +1,17 @@
 import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-const ticketCollection = "ticket";
+const ticketCollection = "tickets";
 
-const ticketSchema = mongoose.Schema({
-    code: { type: String, require: true },
-    purchase_datetime: { type: Date, require: true },
-    amount: { type: Number, require: true },
-    purchaser: { type: String, require: true }
-})
+const ticketSchema = new Schema({
+    code: { type: String, required: true, unique: true },
+    purchase_datetime: { type: Date, required: true, default: Date.now },
+    amount: { type: Number, required: true },
+    purchaser: { type: String, required: true },
+    cart: [{
+        product: { type: Schema.Types.ObjectId, ref: 'products', required: true },
+        quantity: { type: Number, required: true }
+    }]
+});
 
 export const TicketModel = mongoose.model(ticketCollection, ticketSchema);

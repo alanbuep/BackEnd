@@ -1,6 +1,7 @@
 import { ProductsModel } from "../dao/models/products.js";
 import { cartsDao } from "../dao/index.dao.js";
-import { getCarts, getCartById } from "../controller/carts.controller.js";
+import { getCarts, getCartById, calculateCartTotal } from "../controller/carts.controller.js";
+import { productsDao } from "../dao/index.dao.js";
 
 async function getPaginateProducts(req, res) {
     try {
@@ -139,12 +140,17 @@ async function cartsView(req, res) {
 async function cartsByIdView(req, res) {
     try {
         const { cid } = req.params;
+        const user = req.session.user;
         const cart = await cartsDao.getCartById(cid);
         console.log(cart)
+        const total = await calculateCartTotal(cart);
         res.render("cart", {
             title: "Carrito",
             cart: cart,
+            scriptName: "checkout.js",
             style: "../css/styles.css",
+            user: user,
+            total: total,
         });
 
     } catch (error) {

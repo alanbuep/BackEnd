@@ -1,27 +1,55 @@
-<div class="container-fluid card-container row gap-4">
-    <h1 class="text-white text-center my-4">Carrito</h1>
-    <div class="card container">
-        <div class="card-body text-card">
-            <h5 class="card-title">Carrito ID: {{cart._id}}</h5>
-            <p class="card-text">Creado: {{cart.timestamp}}</p>
-            {{#if cart.products.length}}
-            <h5 class="mt-4">Productos en el carrito:</h5>
-            {{#each cart.products}}
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h6 class="card-title">Producto: {{this.product.title}}</h6>
-                    <p class="card-text"><strong>Producto ID:</strong> {{this.product._id}}</p>
-                    <p class="card-text"><strong>Cantidad:</strong> {{this.quantity}}</p>
-                    <p class="card-text"><strong>Precio:</strong> ${{this.product.price}}</p>
-                </div>
-            </div>
-            {{/each}}
-            <div class="text-center mt-4">
-                <button id="checkout-button" class="btn btn-success">Finalizar Compra</button>
-            </div>
-            {{else}}
-            <p class="text-center text-muted mt-4">Tu carrito está vacío.</p>
-            {{/if}}
+{{#if user}}
+<div class="container">
+    <div class="row align-items-center">
+        <div class="col-sm-8 text-white text-center">
+            <h2>Bienvenido, {{user}}!</h2>
+            <h2>Su carrito:</h2>
         </div>
     </div>
+</div>
+{{/if}}
+<div class="container-fluid">
+    <div class="container-fluid text-white">
+        <h5 class="card-title">Carrito ID: {{cart._id}}</h5>
+        <p class="card-text">Creado: {{cart.timestamp}}</p>
+    </div>
+    <h5 class="mt-4 text-white">Productos en el carrito:</h5>
+    {{#if cart.products.length}}
+    <div class="row gap-4">
+        {{#each cart.products}}
+        <div class="card product-card col-md-4">
+            <div class="card-body product-card-body">
+                <h6 class="product-title">Producto: {{this.product.title}}</h6>
+                <img class="card-img-top img-card" src="{{this.product.thumbnail}}" alt="{{this.product.title}}" />
+                <p class="product-detail"><strong>Producto ID:</strong> {{this.product._id}}</p>
+                <p class="product-detail"><strong>Cantidad:</strong> {{this.quantity}}</p>
+                <p class="price product-detail"><strong>Precio:</strong> ${{this.product.price}}</p>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <div class="text-center mt-4">
+        <p class="product-detail text-white"><strong>Total:</strong> ${{total}}</p>
+    </div>
+    <div class="text-center mt-4">
+        <div id="wallet_container"></div>
+        <p class="product-detail text-white">
+            Visa
+            4509 9535 6623 3704
+        </p>
+        <p class="product-detail text-white">
+            Clave
+            123
+        </p>
+        <p class="product-detail text-white">
+            Vencimiento
+            11/25
+        </p>
+        <button id="checkout-button" class="btn btn-success">Pagar con Mercado Pago</button>
+    </div>
+
+
+    {{else}}
+    <p class="empty-cart text-center text-white">Tu carrito está vacío.</p>
+    {{/if}}
 </div>
