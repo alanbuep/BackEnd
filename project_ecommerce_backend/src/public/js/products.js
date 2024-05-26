@@ -4,9 +4,18 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
 
         try {
             console.log(productId)
-            const response = await fetch(`http://localhost:8080/api/carts/products/${productId}`, {
+            const response = await fetch(`/api/carts/products/${productId}`, {
                 method: 'POST',
             });
+
+            if (response.status === 401) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No autenticado',
+                    text: 'Debe iniciar sesión para agregar productos al carrito',
+                });
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error('Error al agregar el producto al carrito');
@@ -33,6 +42,21 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
     });
 });
 
+
+const loginButton = document.getElementById('login');
+if (loginButton) {
+    loginButton.addEventListener('click', function () {
+        window.location.href = '/login';
+    });
+}
+
+const signupButton = document.getElementById('signup');
+if (signupButton) {
+    signupButton.addEventListener('click', function () {
+        window.location.href = '/signup';
+    });
+}
+
 const logoutButton = document.getElementById('logout-button');
 
 logoutButton.addEventListener('click', async () => {
@@ -47,7 +71,7 @@ logoutButton.addEventListener('click', async () => {
 const restorePasswordButton = document.getElementById('restore-password-button');
 restorePasswordButton.addEventListener('click', async () => {
     try {
-        const response = await fetch('http://localhost:8080/restorepasswordemail', {
+        const response = await fetch('/restorepasswordemail', {
             method: 'GET',
         });
         if (!response.ok) {
@@ -65,7 +89,7 @@ const viewCartButton = document.getElementById('view-cart-button');
 if (viewCartButton) {
     viewCartButton.addEventListener('click', async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/users/check-cart', {
+            const response = await fetch('/api/users/check-cart', {
                 method: 'GET',
             });
 

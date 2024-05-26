@@ -23,16 +23,20 @@ export default async function checkStockProductsCart(req, res, next) {
         }
 
         if (outOfStockProducts.length > 0) {
-            return {
+            return res.status(400).json({
                 success: false,
                 message: "Algunos productos no tienen stock suficiente",
                 outOfStockProducts
-            };
+            });
         }
 
         next();
 
     } catch (error) {
-        throw new Error("Error interno del servidor");
+        res.status(500).json({
+            success: false,
+            message: "Error interno del servidor",
+            error: error.message
+        });
     }
 }

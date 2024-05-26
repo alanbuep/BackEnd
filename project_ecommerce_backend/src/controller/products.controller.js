@@ -49,7 +49,10 @@ async function getProductsByID(req, res) {
 
 async function saveProduct(req, res, next) {
     try {
+        console.log(req.body)
+        console.log(req.session)
         const product = req.body;
+        const user = req.session.user;
         console.log(product);
         if (!product.title || !product.description || !product.code || !product.price || !product.status || !product.stock || !product.category) {
             CustomError.createError({
@@ -62,13 +65,15 @@ async function saveProduct(req, res, next) {
         if (!product.thumbnail) {
             product.thumbnail = "Not image"
         }
-        if (!product.owner) {
-            product.owner = "admin"
+        if (!user) {
+            product.owner = user;
+        }else{
+            product.owner = "admin";
         }
         const productSaved = await productsDao.saveProduct(product);
         console.log("El owner: " + product.owner)
         console.log(" Guardo el producto: ")
-        console.log(product);
+        console.log(productSaved);
         res.status(200).json({ message: "Producto cargado con éxito", data: product });
     } catch (error) {
         console.log(error);

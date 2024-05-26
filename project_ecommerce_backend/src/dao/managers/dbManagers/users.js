@@ -45,6 +45,19 @@ export default class UsersDaoDb {
         }
     }
 
+    async checkUserByEmail(email) {
+        try {
+            let user = await UserModel.findOne({ email }).lean();
+            return user || null;
+        } catch (error) {
+            CustomError.createError({
+                name: "Error al buscar el usuario",
+                message: error.message,
+                code: enumErrors.DATABASE_ERROR,
+            });
+        }
+    }
+
     async saveUser(user) {
         try {
             let newUser = new UserModel(user);
@@ -61,7 +74,8 @@ export default class UsersDaoDb {
     }
 
     async updateUser(id, user) {
-        const result = await UserModel.updateOne({ _id: id }, user);
+        const { _id, ...userWithoutId } = user;
+        const result = await UserModel.updateOne({ _id: id }, userWithoutId);
         return result;
     }
 

@@ -1,5 +1,6 @@
 import { usersDao } from "../dao/index.dao.js";
 import { cartsDao } from "../dao/index.dao.js";
+import { sendUserDeleted } from "../services/mail/sendUserDeleted.js";
 
 async function getUsers() {
     try {
@@ -107,4 +108,36 @@ async function uploadDocs() {
     }
 }
 
-export { getUsers, changeToPremium, uploadDocs, checkUserCart }
+async function deleteInactiveUsers(req, res) {
+    try {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+        const allUsers = await usersDao.getUsers();
+
+        const inactiveUsers = allUsers.filter(user => new Date(user.last_connection) < oneMonthAgo);
+
+        for (const user of inactiveUsers) {
+            await usersDao.deleteUser(user._id);
+            console.log(`Usuario eliminado: ${user.email}`);
+            await sendUserDeleted(user.email);
+        }
+
+        console.log("Usuarios inactivos eliminados correctamente.");
+
+        res.status(200).json({
+            success: true,
+            message: "Usuarios inactivos eliminados correctamente.",
+            data: inactiveUsers,
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Error interno del servidor",
+            data: error,
+        });
+    }
+}
+
+export { getUsers, changeToPremium, uploadDocs, checkUserCart, deleteInactiveUsers }

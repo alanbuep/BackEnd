@@ -15,6 +15,8 @@ async function getCarts(req, res) {
 async function getCartById(req, res) {
     try {
         console.log("$$$$$$$$$$$$$$$$$$$$")
+        console.log(req)
+        console.log("$$$$$$$$$$$$$$$$$$$$")
         const { cid } = req.params;
         console.log(cid)
         const cart = await cartsDao.getCartById(cid);
@@ -169,7 +171,7 @@ async function deleteCart(req, res) {
 async function deleteProductCart(req, res) {
     const { cid, pid } = req.params;
     try {
-        let cart = await getCartById(cid);
+        const cart = await cartsDao.getCartById(cid);
         if (cart) {
             const productDeleted = await cartsDao.deleteProductCart(cid, pid);
             res.status(200).json({

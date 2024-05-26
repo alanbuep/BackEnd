@@ -1,4 +1,3 @@
-const socket = io();
 console.log("Bienvenido a Tienda Gamer");
 
 const addProductBtn = document.getElementById("addProductBtn");
@@ -7,76 +6,82 @@ const deleteProductBtn = document.getElementById("deleteProductBtn");
 const user = document.getElementById("user").innerText;
 console.log(user);
 
-addProductBtn.addEventListener("click", () => {
-    const title = document.getElementById("title").value;
-    const description = document.getElementById("description").value;
-    const code = document.getElementById("code").value;
-    const price = document.getElementById("price").value;
-    const status = document.getElementById("status").value;
-    const stock = document.getElementById("stock").value;
-    const category = document.getElementById("category").value;
-    const thumbnail = document.getElementById("thumbnail").value;
+const productForm = document.getElementById("productForm");
+const deleteForm = document.getElementById("deleteForm");
 
-    const product = {
-        title,
-        description,
-        code,
-        price,
-        status,
-        stock,
-        category,
-        thumbnail,
-    };
+productForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    const productToSave = {
-        body: product,
-        user: user,
-    };
+    const product = {};
 
-    console.log(productToSave)
+    product.title = document.getElementById("title").value;
+    product.description = document.getElementById("description").value;
+    product.code = document.getElementById("code").value;
+    product.price = document.getElementById("price").value;
+    product.status = document.getElementById("status").value;
+    product.stock = document.getElementById("stock").value;
+    product.category = document.getElementById("category").value;
+    product.thumbnail = document.getElementById("thumbnail").value;
 
-    setTimeout(4000);
+    try {
+        const response = await fetch("/api/products", {
+            method: "POST",
+            body: JSON.stringify(product),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
 
-    socket.emit("addProduct", productToSave);
-    title.value = "";
-    description.value = "";
-    code.value = "";
-    price.value = "";
-    status.value = "";
-    stock.value = "";
-    category.value = "";
-    thumbnail.value = "";
+        if (!response.ok) {
+            throw new Error("Error al agregar el producto");
+        }
+
+        const data = await response.json();
+        Swal.fire({
+            icon: 'success',
+            title: 'Producto agregado',
+            text: 'El producto se ha agregado con éxito'
+        }).then(() => {
+            productForm.reset();
+        });
+
+    } catch (error) {
+        console.error(error);
+        alert("Hubo un problema al agregar el producto");
+    }
 });
 
+deleteForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-deleteProductBtn.addEventListener("click", () => {
-    const id = document.getElementById("productId").value;
-    const productToDelete = {
-        id: id,
-        user: user,
-    };
-    console.log(productToDelete);
-    socket.emit("deleteProduct", productToDelete);
-    id.value = "";
-    alert("Producto eliminado");
-});
+    const productId = document.getElementById("productId").value;
 
-socket.on("updateProducts", (products) => {
-    const newCard = document.createElement("div")
-    newCard.className = "card container"
-    newCard.innerHTML = `
-    <div class="card container">
-    <img class="card-img-top img-card" src="${this.thumbnail}" alt="${this.name}" />
-    <div class="card-body text-card">
-        <h5 class="card-title">${this.title}</h5>
-        <p class="card-text">${this.description}</p>
-        <p class="card-text"><strong>Precio: $${this.price}</strong></p>
-        <p class="card-text">Stock: ${this.stock}</p>
-        <p class="card-text">Code: ${this.code}</p>
-        <p class="card-text">ID: ${this._id}</p>
-    </div>
-</div>
-    `
+    try {
+        const response = await fetch(`/api/products/${productId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al eliminar el producto');
+        }
+
+        const data = await response.json();
+        Swal.fire({
+            icon: 'success',
+            title: 'Producto eliminado',
+            text: 'El producto se ha eliminado con éxito'
+        }).then(() => {
+            document.getElementById("productId").value = '';
+        });
+
+    } catch (error) {
+        console.error(error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema al eliminar el producto'
+        });
+    }
 });
 
 const logoutButton = document.getElementById('logout-button');

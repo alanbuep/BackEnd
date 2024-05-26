@@ -1,7 +1,7 @@
 import { TicketModel } from "../../models/ticket.js";
 
 export default class TicketDao {
-    constructor() {}
+    constructor() { }
 
     async createTicket(cart, user, total) {
         try {
@@ -43,7 +43,7 @@ export default class TicketDao {
 
     async getTicketById(ticketId) {
         try {
-            const ticket = await TicketModel.findById(ticketId).lean();
+            const ticket = await TicketModel.findById(ticketId).populate('cart.product').lean();
             if (!ticket) {
                 throw new Error("Ticket no encontrado");
             }

@@ -42,7 +42,7 @@ async function generateMercadoPagoPreference(req, res) {
         console.log(req.body.quantity)
         console.log(req.body.price)
         console.log(req.body.cartId)
-        
+        console.log(req.session.user)
         const cid = req.body.cartId;
 
         const body = {
@@ -55,7 +55,7 @@ async function generateMercadoPagoPreference(req, res) {
                 }
             ],
             back_urls: {
-                "success": `http://localhost:8080/api/carts/${cid}/finalize`,
+                "success": `http://localhost:8080/finalizePurchase/${cid}`,
                 "failure": "https://www.coderhouse.com/ar/",
                 "pending": "https://www.coderhouse.com/ar/"
             },

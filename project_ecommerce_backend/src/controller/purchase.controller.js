@@ -1,35 +1,36 @@
-import { cartsDao } from "../dao/index.dao.js";
+import { cartsDao, usersDao } from "../dao/index.dao.js";
 import { productsDao } from "../dao/index.dao.js";
 import { ticketDao } from "../dao/index.dao.js";
 import { calculateCartTotal } from "./carts.controller.js";
+import { sendTicket } from "../services/mail/sendTicket.js";
 
 async function finalizePurchase(req, res, next) {
     try {
         const { cid } = req.params;
-        const cart = await cartsDao.getCartById(cid)
         const user = req.session.user;
-        console.log(cid)
-        console.log(user)
 
-        const paymentStatus = req.query.status;
-        if (paymentStatus !== 'approved') {
-            return res.status(400).json({
-                success: false,
-                message: "El pago no fue aprobado"
-            });
-        }
-
-        const total = calculateCartTotal(cart);
+        const cart = await cartsDao.getCartById(cid);
+        const total = await calculateCartTotal(cart);
 
         const result = await ticketDao.createTicket(cart, user, total);
+        const ticketId = result.ticket._id;
+        req.ticketId = ticketId;
 
-        // enviar mail con ticket
+        const userToUpdate = await usersDao.getUserByEmail(user);
+        userToUpdate.cart = null;
+        await usersDao.updateUser(userToUpdate._id, userToUpdate);
+        await cartsDao.deleteCart(cid);
+
+        const sendResult = await sendTicket(result.ticket, user, cart.products);
+        console.log(sendResult);
 
         for (const cartProduct of cart.products) {
             const product = cartProduct.product;
             product.stock -= cartProduct.quantity;
             await productsDao.updateProduct(product._id, { stock: product.stock });
         }
+
+        next();
     } catch (error) {
         console.error(error);
         res.status(500).json({

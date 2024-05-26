@@ -1,5 +1,5 @@
 import { ProductsModel } from "../dao/models/products.js";
-import { cartsDao } from "../dao/index.dao.js";
+import { cartsDao, ticketDao } from "../dao/index.dao.js";
 import { getCarts, getCartById, calculateCartTotal } from "../controller/carts.controller.js";
 import { productsDao } from "../dao/index.dao.js";
 
@@ -162,4 +162,29 @@ async function cartsByIdView(req, res) {
     }
 }
 
-export { getPaginateProducts, realtimePaginate, chatView, cartsView, cartsByIdView };
+async function finalizeView(req, res) {
+    try {
+        console.log("El ticket id es:")
+        console.log(req.ticketId)
+        const tid = req.ticketId;
+        const user = req.session.user;
+        const ticket = await ticketDao.getTicketById(tid);
+
+        res.render("finalize", {
+            title: "Compra Finalizada",
+            ticket: ticket,
+            user: user,
+            scriptName: "finalize.js",
+            style: "../css/styles.css",
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Error interno del servidor",
+            data: error
+        })
+        console.log(error)
+    }
+}
+
+export { getPaginateProducts, realtimePaginate, chatView, cartsView, cartsByIdView, finalizeView };

@@ -48,9 +48,10 @@ const initializePassport = () => {
                 try {
                     console.log(username);
 
-                    const user = await usersDao.getUserByEmail(username);
+                    const user = await usersDao.checkUserByEmail(username);
                     console.log("user", user);
                     if (user) {
+                        console.log("User already exists");
                         return done(null, false, { message: "User already exists" });
                     }
                     const newUser = {
@@ -62,7 +63,7 @@ const initializePassport = () => {
                         role: "user",
                     };
                     console.log(newUser);
-                    let result = await usersDao.addUser(newUser);
+                    let result = await usersDao.saveUser(newUser);
                     return done(null, result);
                 } catch (error) {
                     console.log(error);
@@ -110,7 +111,7 @@ const initializePassport = () => {
                 try {
                     let userEmail = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : "No email";
                     console.log(userEmail);
-                    let user = await usersDao.getUserByEmail({ email: userEmail });
+                    let user = await usersDao.getUserByEmail(userEmail);
                     if (!user) {
                         let firstName = profile.displayName ? profile.displayName.split(" ")[0] : "No first name";
                         let lastName = profile.displayName ? profile.displayName.split(" ")[1] : "No last name";

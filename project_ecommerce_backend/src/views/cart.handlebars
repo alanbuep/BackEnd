@@ -24,6 +24,8 @@
                 <p class="product-detail"><strong>Producto ID:</strong> {{this.product._id}}</p>
                 <p class="product-detail"><strong>Cantidad:</strong> {{this.quantity}}</p>
                 <p class="price product-detail"><strong>Precio:</strong> ${{this.product.price}}</p>
+                <button class="btn btn-danger remove-from-cart" data-product-id="{{this.product._id}}">Eliminar del
+                    carrito</button>
             </div>
         </div>
         {{/each}}
@@ -33,23 +35,41 @@
     </div>
     <div class="text-center mt-4">
         <div id="wallet_container"></div>
-        <p class="product-detail text-white">
-            Visa
-            4509 9535 6623 3704
-        </p>
-        <p class="product-detail text-white">
-            Clave
-            123
-        </p>
-        <p class="product-detail text-white">
-            Vencimiento
-            11/25
-        </p>
+
         <button id="checkout-button" class="btn btn-success">Pagar con Mercado Pago</button>
+
+        <button id="checkout-button-2" class="btn btn-success">Finalizar sin pasarela de pago</button>
+        <p class="product-detail text-white">
+            Visa: 4509 9535 6623 3704
+        </p>
+        <p class="product-detail text-white">
+            Vencimiento: 11/25
+        </p>
+        <p class="product-detail text-white">
+            Codigo de seguridad: 123
+        </p>
+        <p class="product-detail text-white">
+            cliente:
+            user:
+            TESTUSER1670991289
+            password:
+            vGiF6q5Ge7
+        </p>
+        <p class="product-detail text-white">
+            tienda-gamer:
+            User:
+            TESTUSER1202113294
+            Password:
+            MRb1JsA6IN
+        </p>
     </div>
 
 
     {{else}}
     <p class="empty-cart text-center text-white">Tu carrito está vacío.</p>
     {{/if}}
+
+    <div class="text-center mt-4">
+        <a id="back-to-home" href="/" class="btn btn-primary">Volver al Inicio</a>
+    </div>
 </div>

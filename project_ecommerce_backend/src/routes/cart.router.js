@@ -27,8 +27,6 @@ router.put("/:cid/products/:pid", updateProductQuantity);
 
 router.get("/:cid/purchase", checkStockProductsCart, processPayment);
 
-router.get("/:cid/finalize");
-
 router.post("/create-preference", generateMercadoPagoPreference);
 
 export default router;

@@ -1,4 +1,4 @@
-const mp = new MercadoPago('TEST-2cac8fc2-06c3-4566-83c1-d6fa4d6365ee', {
+const mp = new MercadoPago('APP_USR-5817cd2e-cab2-4cef-9cf5-0944f426e9a4', {
     locale: 'es-AR'
 });
 
@@ -9,14 +9,19 @@ document.getElementById("checkout-button").addEventListener("click", async funct
     try {
         let total = 0;
 
-        const response = await fetch(`http://localhost:8080/api/carts/${cartId}/purchase`, {
+        const response = await fetch(`/api/carts/${cartId}/purchase`, {
             method: "GET",
         });
         const result = await response.json();
         if (response.ok) {
             total = result.total;
         } else {
-            alert(result.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.message,
+            });
+            return;
         }
 
         const orderData = {
@@ -26,7 +31,7 @@ document.getElementById("checkout-button").addEventListener("click", async funct
             cartId: cartId,
         };
 
-        const responseMP = await fetch(`http://localhost:8080/api/carts/create-preference`, {
+        const responseMP = await fetch(`/api/carts/create-preference`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -38,7 +43,12 @@ document.getElementById("checkout-button").addEventListener("click", async funct
 
         createCheckoutButton(preference.id);
     } catch (error) {
-        alert("Error:", error)
+        console.log(error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema al procesar el pago',
+        });
     }
 
 });
@@ -58,3 +68,42 @@ const createCheckoutButton = (preferenceId) => {
 
     renderComponent();
 }
+
+document.getElementById("checkout-button-2").addEventListener("click", function () {
+    window.location.href = `/finalizePurchase/${cartId}`;
+});
+
+document.querySelectorAll('.remove-from-cart').forEach(button => {
+    button.addEventListener('click', async event => {
+        const productId = event.target.dataset.productId;
+        console.log(cartId)
+        console.log(productId)
+        try {
+            const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al eliminar el producto del carrito');
+            }
+
+            const data = await response.json();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Producto eliminado',
+                text: 'El producto se ha eliminado del carrito con éxito',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            window.location.reload();
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al eliminar el producto del carrito',
+            });
+        }
+    });
+});

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { __dirname } from "../utils.js";
-import { changeToPremium, getUsers, uploadDocs, checkUserCart } from "../controller/users.controller.js";
+import { changeToPremium, getUsers, uploadDocs, checkUserCart, deleteInactiveUsers } from "../controller/users.controller.js";
 import authUser from "../middlewares/authUser.js";
 
 const router = Router();
@@ -24,5 +24,7 @@ router.get("/check-cart", authUser, checkUserCart);
 router.put("/premium/:uid", changeToPremium);
 
 router.post("/:uid/documents", upload.single("document"), uploadDocs);
+
+router.delete("/delete-inactive-users", deleteInactiveUsers);
 
 export default router;
